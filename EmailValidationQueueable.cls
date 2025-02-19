@@ -1,6 +1,6 @@
 public class EmailValidationQueueable implements Queueable, Database.AllowsCallouts  {
     private String contactId;
-    private static final String Email_API_KEY = '2c507050a4ee45c3857780ddc2347f40'; // Replace with your actual API key
+    private static final String Email_API_KEY = ''; // Replace with your actual API key
 
     public EmailValidationQueueable(String contactId) {
         this.contactId = contactId;
