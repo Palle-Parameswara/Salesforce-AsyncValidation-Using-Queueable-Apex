@@ -1,4 +1,78 @@
 # Salesforce-AsyncValidation-Using-Queueable-Apex
+
+### **Pros and Cons of Using Queueable Apex**
+
+**Queueable Apex** is a powerful tool in Salesforce for performing asynchronous operations, especially when working with large volumes of data or external integrations. However, like any technology, it has its strengths and weaknesses depending on your use case.
+
+### **Pros of Queueable Apex:**
+
+1. **Flexibility**:
+   - Queueable Apex is more **flexible** than **Future Methods**. You can pass **complex data types** (like lists, maps, custom objects) to Queueable Apex jobs, making it much more versatile in handling complex use cases.
+   - **Chaining Jobs**: You can **chain multiple queueable jobs**, meaning you can pass the result of one job to another, creating a sequence of jobs to perform complex workflows.
+
+2. **Non-blocking Execution**:
+   - Queueable Apex runs **asynchronously**, meaning it doesn’t block the main transaction. This is important when you need to perform time-consuming operations like **callouts** or **heavy computations** without blocking user interactions or other Salesforce processes.
+
+3. **Governor Limits**:
+   - **Governor Limits**: Each Queueable Apex job has its own set of limits, so it’s not constrained by the **transaction limits** that govern synchronous operations. For example, you can make **up to 100 callouts per job**, whereas synchronous methods are limited to 100 per transaction.
+   - It can also **use heap space** and **CPU time** more efficiently than a synchronous process.
+
+4. **Error Handling**:
+   - **Better Error Handling**: Queueable Apex allows more fine-grained control over error handling and retry mechanisms. You can catch exceptions in your `execute` method and log them, or even trigger different actions depending on the outcome.
+
+5. **Easier to Use for Complex Operations**:
+   - Queueable Apex can be easier to work with when handling **complex workflows** as it allows you to use **complex data structures** and manage them within a job. This is harder with **future methods** that don't support complex data types.
+
+6. **Visibility**:
+   - **Job Monitoring**: You can monitor the execution of Queueable jobs in the **Apex Jobs** interface in Salesforce, making it easier to track job progress and handle retries.
+
+7. **Better for Bulk Processing**:
+   - For **bulk data** processing, Queueable Apex is better than future methods, as it allows you to handle records in batches and chain jobs together for further processing.
+
+---
+
+### **Cons of Queueable Apex:**
+
+1. **Complexity**:
+   - **More complex** to implement than **Future Methods**. For simple use cases, Queueable Apex might feel like overkill. If your job doesn't require complex logic or passing of large data sets, a **future method** might be simpler and sufficient.
+
+2. **Limit on Queueable Jobs**:
+   - While **Queueable Apex** has its own set of limits, it can still hit limits such as **50 jobs per transaction** (when chaining jobs). If you are handling a very large volume of data, you might need to take extra steps to manage these limits.
+
+3. **Delayed Execution**:
+   - Since Queueable Apex executes **asynchronously**, there is a **delay** between when the job is enqueued and when it is actually executed. This delay could impact real-time processing scenarios where you need immediate results (e.g., showing the user real-time validation results).
+
+4. **Single Job Timeout**:
+   - A single Queueable job has a **maximum execution time** of 5 minutes. If your job takes longer than that to process, it will **time out**. For long-running processes, you may need to implement job chaining or consider using **Batch Apex** instead.
+
+5. **DML Limitations**:
+   - Each **Queueable job** can only perform **DML operations** (insert, update, delete) in its own context. This means if you try to update too many records in a single job, you might hit the **DML governor limits**. It’s essential to manage how much data you're working with in a single job.
+
+6. **Visibility and Monitoring**:
+   - While you can monitor jobs through the **Apex Jobs** page, understanding the **progress** of a **chained Queueable job** or finding out where an issue occurred in long-running processes can sometimes be more difficult than tracking synchronous operations.
+
+7. **Asynchronous Limit**:
+   - Salesforce limits you to **50 asynchronous operations** (Queueable, Future, Batch, and scheduled jobs combined) per transaction. This can be restrictive in scenarios where you need to perform multiple asynchronous operations simultaneously.
+
+---
+
+### **When to Use Queueable Apex**:
+- **Asynchronous processing** is needed for tasks like **external system integrations (API callouts)**, **large-scale data processing**, or **heavy computations** that should not block the user experience.
+- When you need to handle **complex data structures** or **job chaining**.
+- For operations that can take a long time but shouldn't block the user or the main transaction, such as **bulk email validation**, **phone number validation**, or **complex workflows** that need to run independently of user actions.
+- If you're dealing with more than **100 records** and need more flexibility than a **future method** can offer.
+
+---
+
+### **When NOT to Use Queueable Apex**:
+- For **simple asynchronous operations**, such as a simple callout or database update, where **Future Methods** would suffice and be simpler.
+- For **real-time processes** where immediate execution is required, as **Queueable Apex** introduces some **delay** between job submission and execution.
+- When your processing logic needs to run **within 5 minutes** or less, or if you’re dealing with **very large data** where the execution might exceed the **time limit** for a single job.
+
+---
+
+### **Conclusion**:
+Queueable Apex is a **very powerful tool** for handling **asynchronous tasks**, especially when dealing with large data volumes or complex operations that require flexibility. It is the best choice when you're dealing with bulk operations, external system calls, or chaining jobs for more complex workflows. However, it’s a bit more **complex** than future methods and introduces **some delay** in execution, so consider your use case carefully before choosing this approach.
 ## **Step-by-Step Guide**:
 
 ### **Step 1: Create External Credentials (Custom)**
@@ -147,21 +221,17 @@ Add all these fields to the **layout** for the **Contact** object.
 
 ---
 
-### **Step 6: Update the Contact Validation Controller with Future Methods**
+### **Step 6: Create two Queueable class I mention below**
 
-Here’s the `ContactValidationController` class with `@future(callout=true)` methods:
-
-(Include the code for future methods as shown previously in the original response.)
-
+PhoneValidationQueueable
+EmailValidationQueueable
 ---
 
-### **Step 7: Trigger to Call Future Methods**
+### **Step 7: Trigger to Call the Queueable classes**
 
-Here’s the `ContactValidationTrigger` to call the future methods:
+Here’s the `ContactValidationTrigger` to call the Queueable classes:
 
-(Include the code for the trigger as shown previously in the original response.)
 
----
 
 ### **References**:
 - [Phone Validation API - Abstract API](https://app.abstractapi.com/api/phone-validation/tester)
