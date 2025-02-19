@@ -1,6 +1,6 @@
 public class PhoneValidationQueueable implements Queueable, Database.AllowsCallouts  {
     private String contactId;
-    private static final String Phone_API_KEY = 'd90b7df724114ec59a326b81afca3e4e'; // Replace with your actual API key
+    private static final String Phone_API_KEY = ''; // Replace with your actual API key
 
     public PhoneValidationQueueable(String contactId) {
         this.contactId = contactId;
